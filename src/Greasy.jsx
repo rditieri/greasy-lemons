@@ -189,7 +189,7 @@ export default function Greasy() {
   const empty = messages.length === 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 49px)" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 49px)", width: "100%", maxWidth: "100vw", overflowX: "hidden" }}>
       {/* messages */}
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "24px 20px", maxWidth: 800, margin: "0 auto", width: "100%" }}>
         {empty && (
@@ -257,7 +257,7 @@ export default function Greasy() {
       }}>
         <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", gap: 10, alignItems: "flex-end" }}>
           <div style={{
-            flex: 1, background: "#f9f9f9",
+            flex: 1, minWidth: 0, background: "#f9f9f9",
             border: "1px solid #e0e0e0",
             borderRadius: 10, padding: "10px 14px",
           }}>

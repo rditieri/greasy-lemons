@@ -10,6 +10,7 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Barlow+Condensed:wght@700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow-x: hidden; max-width: 100vw; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #eee; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
