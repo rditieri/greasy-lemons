@@ -191,7 +191,7 @@ export default function Greasy() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 49px)", width: "100%", maxWidth: "100vw", overflowX: "hidden" }}>
       {/* messages */}
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "24px 20px", maxWidth: 800, margin: "0 auto", width: "100%" }}>
+      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch", padding: "24px 20px", maxWidth: 800, margin: "0 auto", width: "100%" }}>
         {empty && (
           <div style={{ textAlign: "center", paddingTop: 40 }}>
             <div style={{
