@@ -111,6 +111,7 @@ function Bubble({ msg }) {
         fontFamily: "'IBM Plex Mono', monospace",
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
+        textAlign: "left",
       }}>
         {msg.content}
       </div>
@@ -248,6 +249,7 @@ export default function Greasy() {
       <div style={{
         borderTop: "1px solid #e5e5e5",
         padding: "14px 20px", background: "#ffffff",
+        overflow: "hidden",
       }}>
         <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", gap: 10, alignItems: "flex-end" }}>
           <div style={{

@@ -6,7 +6,7 @@ export default function App() {
   const [tab, setTab] = useState("greasy");
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f5", fontFamily: "'IBM Plex Mono', monospace" }}>
+    <div style={{ minHeight: "100vh", background: "#f5f5f5", fontFamily: "'IBM Plex Mono', monospace", overflowX: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Barlow+Condensed:wght@700;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
