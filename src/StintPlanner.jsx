@@ -15,7 +15,11 @@ function toMins(str) {
 
 function toTimeStr(totalMins) {
   const n = ((totalMins % 1440) + 1440) % 1440;
-  return `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(Math.round(n % 60)).padStart(2, "0")}`;
+  const h24 = Math.floor(n / 60);
+  const m   = Math.round(n % 60);
+  const ampm = h24 >= 12 ? "pm" : "am";
+  const h12  = h24 % 12 || 12;
+  return `${h12}:${String(m).padStart(2, "0")}${ampm}`;
 }
 
 function durStr(mins) {
