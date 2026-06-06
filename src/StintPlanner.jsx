@@ -173,15 +173,15 @@ function driverColor(name, drivers) {
 // ─── shared UI atoms ──────────────────────────────────────────────────────────
 
 function Label({ children }) {
-  return <div style={{ fontSize: 10, color: "#333", letterSpacing: "0.1em", marginBottom: 5, textTransform: "uppercase" }}>{children}</div>;
+  return <div style={{ fontSize: 12, color: "#aaa", letterSpacing: "0.08em", marginBottom: 6, textTransform: "uppercase" }}>{children}</div>;
 }
 
 function SI({ value, onChange, type = "text", placeholder, min, max, style = {} }) {
   return (
     <input type={type} value={value} onChange={onChange} placeholder={placeholder} min={min} max={max} style={{
-      width: "100%", background: "#fff", border: "1px solid #ccc",
-      borderRadius: 6, color: "#111", padding: "8px 10px",
-      fontSize: 13, fontFamily: "'IBM Plex Mono', monospace", ...style,
+      width: "100%", background: "#2a2a2a", border: "1.5px solid #444",
+      borderRadius: 6, color: "#f0f0f0", padding: "10px 12px",
+      fontSize: 16, fontFamily: "'IBM Plex Mono', monospace", ...style,
     }} />
   );
 }
@@ -189,8 +189,8 @@ function SI({ value, onChange, type = "text", placeholder, min, max, style = {} 
 function Card({ children, style = {} }) {
   return (
     <div style={{
-      background: "#ffffff", border: "1px solid #e5e5e5",
-      borderRadius: 10, padding: 16, marginBottom: 14, boxShadow: "0 1px 3px rgba(0,0,0,0.05)", ...style,
+      background: "#1c1c1c", border: "1px solid #2e2e2e",
+      borderRadius: 10, padding: 16, marginBottom: 14, ...style,
     }}>{children}</div>
   );
 }
@@ -199,14 +199,14 @@ function Btn({ onClick, children, variant = "default", disabled, style = {} }) {
   const t = {
     red:     { background: "#e63946", border: "none", color: "#fff" },
     amber:   { background: "#b45309", border: "none", color: "#fff" },
-    yellow:  { background: "#854d0e", border: "none", color: "#fef08a" },
-    ghost:   { background: "transparent", border: "1px solid #555", color: "#333" },
-    default: { background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.2)", color: "#ccc" },
+    yellow:  { background: "#854d0e", border: "none", color: "#fde68a" },
+    ghost:   { background: "transparent", border: "1.5px solid #555", color: "#f0f0f0" },
+    default: { background: "#2a2a2a", border: "1.5px solid #555", color: "#f0f0f0" },
   };
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      ...(t[variant] ?? t.default), borderRadius: 6, padding: "6px 12px",
-      fontSize: 11, fontFamily: "'IBM Plex Mono', monospace",
+      ...(t[variant] ?? t.default), borderRadius: 6, padding: "8px 14px",
+      fontSize: 13, fontFamily: "'IBM Plex Mono', monospace",
       cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1,
       letterSpacing: "0.05em", ...style,
     }}>{children}</button>
@@ -217,15 +217,14 @@ function Btn({ onClick, children, variant = "default", disabled, style = {} }) {
 
 function FlexBadge({ flexMins }) {
   if (flexMins <= 0) return (
-    <span style={{ fontSize: 10, color: "#444", letterSpacing: "0.05em" }}>FULL STINT</span>
+    <span style={{ fontSize: 12, color: "#aaa", letterSpacing: "0.05em" }}>FULL STINT</span>
   );
-  const color = flexMins >= 20 ? "#22c55e" : flexMins >= 10 ? "#f59e0b" : "#e63946";
+  const [bg, fg] = flexMins >= 20 ? ["#14532d", "#4ade80"] : flexMins >= 10 ? ["#451a03", "#fbbf24"] : ["#450a0a", "#f87171"];
   const label = flexMins >= 20 ? "wide window" : flexMins >= 10 ? "moderate" : "tight";
   return (
     <span style={{
-      fontSize: 10, color,
-      background: `${color}18`, border: `1px solid ${color}40`,
-      borderRadius: 4, padding: "2px 7px", letterSpacing: "0.05em",
+      fontSize: 12, color: fg, background: bg,
+      borderRadius: 4, padding: "3px 9px", letterSpacing: "0.05em", fontWeight: 700,
     }}>
       FLEX +{flexMins}m — {label}
     </span>
@@ -270,51 +269,51 @@ function FCYLogger({ stint, idx, stints, saveStints, greenBurnGalPerHr, fcyPctOf
   if (!canLog) return null;
 
   return (
-    <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,0,0.05)" }}>
+    <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #2e2e2e" }}>
       {stint.fcyEvents.length > 0 && (
         <div style={{ marginBottom: 8 }}>
           {stint.fcyEvents.map((e, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, fontSize: 11, color: "#444" }}>
-              <span style={{ color: "#facc15" }}>🟡</span>
-              <span>FCY {i + 1}: {e.durationMins} min</span>
-              {e.loggedAt && <span style={{ color: "#333" }}>@ {e.loggedAt}</span>}
-              <button onClick={() => removeFCY(i)} style={{ background: "none", border: "none", color: "#3a3a3a", fontSize: 12, cursor: "pointer", marginLeft: "auto", padding: 0 }}>✕</button>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, fontSize: 13, color: "#f0f0f0" }}>
+              <span style={{ color: "#fde68a" }}>🟡</span>
+              <span>FCY {i + 1}: <strong>{e.durationMins} min</strong></span>
+              {e.loggedAt && <span style={{ color: "#aaa" }}>@ {e.loggedAt}</span>}
+              <button onClick={() => removeFCY(i)} style={{ background: "none", border: "none", color: "#aaa", fontSize: 14, cursor: "pointer", marginLeft: "auto", padding: 0 }}>✕</button>
             </div>
           ))}
         </div>
       )}
       {savings.extraMins > 0 && (
-        <div style={{ background: "rgba(250,204,21,0.07)", border: "1px solid rgba(250,204,21,0.22)", borderLeft: "3px solid #facc15", borderRadius: 6, padding: "10px 12px", marginBottom: 10 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#facc15", letterSpacing: "0.08em", marginBottom: 6 }}>🟡 FCY FUEL BANK</div>
-          <div style={{ fontSize: 12, color: "#d4d4d4", lineHeight: 1.7, marginBottom: 10 }}>
+        <div style={{ background: "#1f1a00", border: "1.5px solid #854d0e", borderLeft: "4px solid #fbbf24", borderRadius: 6, padding: "12px 14px", marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#fbbf24", letterSpacing: "0.08em", marginBottom: 8 }}>🟡 FCY FUEL BANK</div>
+          <div style={{ fontSize: 14, color: "#f0f0f0", lineHeight: 1.75, marginBottom: 12 }}>
             {savings.totalFCYMins} min under yellow saved{" "}
-            <strong style={{ color: "#fde047" }}>~{savings.fuelSavedGal.toFixed(2)} gal</strong>
+            <strong style={{ color: "#fde68a" }}>~{savings.fuelSavedGal.toFixed(2)} gal</strong>
             {" "}→ driver can stay out{" "}
-            <strong style={{ color: "#fde047" }}>~{savings.extraMins} min longer</strong>
+            <strong style={{ color: "#fde68a" }}>~{savings.extraMins} min longer</strong>
           </div>
-          <Btn variant="yellow" onClick={applyExtension} style={{ fontSize: 10 }}>
+          <Btn variant="yellow" onClick={applyExtension}>
             APPLY +{savings.extraMins}m EXTENSION
           </Btn>
         </div>
       )}
       {!open ? (
         <button onClick={() => setOpen(true)} style={{
-          background: "rgba(250,204,21,0.07)", border: "1px solid rgba(250,204,21,0.18)",
-          borderRadius: 5, padding: "4px 10px", fontSize: 10, color: "#a16207",
-          fontFamily: "'IBM Plex Mono', monospace", cursor: "pointer", letterSpacing: "0.05em",
+          background: "#1f1a00", border: "1.5px solid #854d0e",
+          borderRadius: 6, padding: "10px 14px", fontSize: 13, color: "#fbbf24",
+          fontFamily: "'IBM Plex Mono', monospace", cursor: "pointer", letterSpacing: "0.05em", fontWeight: 700,
         }}>🟡 LOG FULL COURSE YELLOW</button>
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, color: "#444" }}>FCY duration:</span>
+          <span style={{ fontSize: 13, color: "#f0f0f0" }}>FCY duration:</span>
           <input type="number" value={durInput} min={1} max={180}
             onChange={e => setDurInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && logFCY()}
             placeholder="min" autoFocus
-            style={{ width: 70, background: "#fff", border: "1px solid #facc15", borderRadius: 5, color: "#92400e", padding: "4px 8px", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace" }}
+            style={{ width: 80, background: "#2a2a2a", border: "1.5px solid #fbbf24", borderRadius: 5, color: "#fde68a", padding: "8px 10px", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }}
           />
-          <span style={{ fontSize: 11, color: "#333" }}>min</span>
-          <Btn variant="yellow" onClick={logFCY} style={{ fontSize: 10, padding: "4px 10px" }}>LOG IT</Btn>
-          <button onClick={() => { setOpen(false); setDurInput(""); }} style={{ background: "none", border: "none", color: "#444", fontSize: 13, cursor: "pointer" }}>✕</button>
+          <span style={{ fontSize: 13, color: "#f0f0f0" }}>min</span>
+          <Btn variant="yellow" onClick={logFCY}>LOG IT</Btn>
+          <button onClick={() => { setOpen(false); setDurInput(""); }} style={{ background: "none", border: "none", color: "#aaa", fontSize: 16, cursor: "pointer" }}>✕</button>
         </div>
       )}
     </div>
@@ -336,18 +335,18 @@ function SuggestionBanner({ suggestion, onApply, targetPace }) {
 
   return (
     <div style={{
-      background: exceedsTank ? "rgba(220,38,38,0.07)" : "rgba(245,158,11,0.07)",
-      border: `1px solid ${exceedsTank ? "rgba(220,38,38,0.3)" : "rgba(245,158,11,0.3)"}`,
-      borderLeft: `4px solid ${accent}`, borderRadius: 8, padding: "14px 16px", marginBottom: 14,
+      background: exceedsTank ? "#1a0505" : "#1f1700",
+      border: `1.5px solid ${exceedsTank ? "#7f1d1d" : "#f59e0b"}`,
+      borderLeft: `5px solid ${accent}`, borderRadius: 8, padding: "16px", marginBottom: 14,
     }}>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: accent }}>
-          {exceedsTank ? "⚠ FUEL WARNING — STOP REDUCTION NOT FEASIBLE" : "💡 PIT STOP SAVINGS OPPORTUNITY"}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", color: accent, textTransform: "uppercase" }}>
+          {exceedsTank ? "⚠ Fuel warning — stop reduction not feasible" : "💡 Pit stop savings opportunity"}
         </div>
-        <button onClick={() => setDismissed(true)} style={{ background: "none", border: "none", color: "#444", fontSize: 15, cursor: "pointer", padding: 0 }}>✕</button>
+        <button onClick={() => setDismissed(true)} style={{ background: "none", border: "none", color: "#aaa", fontSize: 18, cursor: "pointer", padding: 0, lineHeight: 1 }}>✕</button>
       </div>
 
-      <div style={{ fontSize: 13, color: "#ccc", lineHeight: 1.75, marginBottom: 10 }}>
+      <div style={{ fontSize: 14, color: "#f0f0f0", lineHeight: 1.8, marginBottom: 12 }}>
         {exceedsTank ? (
           <>Extending stints by <strong style={{ color: "#f87171" }}>{extensionPerStint} min</strong> each would eliminate a pit stop but needs ~<strong style={{ color: "#f87171" }}>{extraFuelGal} gal more per stint</strong> — beyond usable tank. Not achievable on green-flag pace.</>
         ) : (
@@ -357,32 +356,32 @@ function SuggestionBanner({ suggestion, onApply, targetPace }) {
 
       {/* FuelMaxing tradeoff */}
       {fm && (
-        <div style={{ background: "#f9f9f9", border: "1px solid #e5e5e5", borderRadius: 6, padding: "10px 12px", marginBottom: 12 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#444", letterSpacing: "0.1em", marginBottom: 8 }}>⚡ FUELMAX ALTERNATIVE</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+        <div style={{ background: "#1c1c1c", border: "1px solid #333", borderRadius: 6, padding: "12px 14px", marginBottom: 14 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#a78bfa", letterSpacing: "0.1em", marginBottom: 10, textTransform: "uppercase" }}>⚡ FuelMax alternative</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
             {[
-              { label: "CONSERVATIVE (-5 sec/lap)", laps: fm.lapsCon, cost: fm.costConTotal, mins: fm.raceMinsCon, wins: fm.conWins },
-              { label: "AGGRESSIVE (-12 sec/lap)",  laps: fm.lapsAgg, cost: fm.costAggTotal, mins: fm.raceMinsAgg, wins: fm.aggWins },
+              { label: "Conservative (-5 s/lap)", laps: fm.lapsCon, cost: fm.costConTotal, mins: fm.raceMinsCon, wins: fm.conWins },
+              { label: "Aggressive (-12 s/lap)",  laps: fm.lapsAgg, cost: fm.costAggTotal, mins: fm.raceMinsAgg, wins: fm.aggWins },
             ].map(({ label, laps, cost, mins, wins }) => (
-              <div key={label} style={{ background: wins ? "rgba(34,197,94,0.06)" : "rgba(230,57,70,0.05)", border: `1px solid ${wins ? "rgba(34,197,94,0.2)" : "rgba(230,57,70,0.15)"}`, borderRadius: 5, padding: "8px 10px" }}>
-                <div style={{ fontSize: 9, color: "#333", letterSpacing: "0.08em", marginBottom: 5 }}>{label}</div>
-                <div style={{ fontSize: 12, color: wins ? "#22c55e" : "#e63946", fontWeight: 700 }}>
+              <div key={label} style={{ background: wins ? "#14532d" : "#450a0a", border: `1.5px solid ${wins ? "#166534" : "#7f1d1d"}`, borderRadius: 6, padding: "10px 12px" }}>
+                <div style={{ fontSize: 12, color: wins ? "#86efac" : "#fca5a5", letterSpacing: "0.06em", marginBottom: 6, textTransform: "uppercase" }}>{label}</div>
+                <div style={{ fontSize: 16, color: wins ? "#4ade80" : "#f87171", fontWeight: 700 }}>
                   {fmtSecs(cost)} total
                 </div>
-                <div style={{ fontSize: 10, color: "#333", marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: wins ? "#86efac" : "#fca5a5", marginTop: 4 }}>
                   {laps} laps/stint · {mins} min of racing
                 </div>
-                <div style={{ fontSize: 10, color: wins ? "#22c55e" : "#e63946", marginTop: 3 }}>
+                <div style={{ fontSize: 12, color: wins ? "#4ade80" : "#f87171", marginTop: 4 }}>
                   {wins ? `✓ ${fmtSecs(fm.pitCost - cost)} faster than pitting` : `✗ ${fmtSecs(cost - fm.pitCost)} slower than pitting`}
                 </div>
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 10, color: "#333" }}>Pit stop cost: {fmtSecs(fm.pitCost)} · Across {newStints} stints · Target pace {targetPace ?? "1:35"}/lap</div>
+          <div style={{ fontSize: 12, color: "#aaa" }}>Pit stop cost: {fmtSecs(fm.pitCost)} · Across {newStints} stints · Target pace {targetPace ?? "1:35"}/lap</div>
         </div>
       )}
 
-      {!exceedsTank && <Btn variant="amber" onClick={onApply} style={{ fontSize: 11 }}>APPLY — REBUILD WITH {newStintLength}-MIN STINTS</Btn>}
+      {!exceedsTank && <Btn variant="amber" onClick={onApply} style={{ width: "100%", padding: "13px", fontSize: 14 }}>APPLY — REBUILD WITH {newStintLength}-MIN STINTS</Btn>}
     </div>
   );
 }
@@ -450,14 +449,15 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
 
   return (
     <div style={{
-      border: "1px solid #e5e5e5", borderLeft: `3px solid ${color}`,
-      borderRadius: 8, padding: "12px 14px", marginBottom: 10,
-      background: isActive ? "rgba(230,57,70,0.04)" : isPast ? "#f5f5f5" : "#ffffff",
-      opacity: isPast && !isActive ? 0.55 : 1, transition: "all 0.2s",
+      border: `1.5px solid ${isActive ? "#22c55e" : isPast ? "#333" : "#2e2e2e"}`,
+      borderLeft: `4px solid ${isActive ? "#22c55e" : isPast ? "#555" : color}`,
+      borderRadius: 8, padding: "14px 16px", marginBottom: 10,
+      background: isActive ? "#1f2a1f" : isPast ? "#181818" : "#1c1c1c",
+      opacity: isPast && !isActive ? 0.8 : 1, transition: "all 0.2s",
     }}>
       {/* header row */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ width: 26, height: 26, borderRadius: 5, background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#000", flexShrink: 0, marginTop: 2 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 6, background: isPast ? "#333" : color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: isPast ? "#aaa" : "#000", flexShrink: 0, marginTop: 2 }}>
           S{stint.id}
         </div>
 
@@ -468,55 +468,54 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
               onChange={e => setNameInput(e.target.value)}
               onBlur={saveName}
               onKeyDown={e => { if (e.key === "Enter") saveName(); if (e.key === "Escape") { setNameInput(stint.driver); setEditingName(false); } }}
-              style={{ background: "#fff", border: `1px solid ${color}`, borderRadius: 4, color, fontWeight: 700, fontSize: 14, padding: "2px 6px", fontFamily: "'IBM Plex Mono', monospace", width: "80%" }}
+              style={{ background: "#2a2a2a", border: `1.5px solid ${color}`, borderRadius: 4, color, fontWeight: 700, fontSize: 18, padding: "4px 8px", fontFamily: "'IBM Plex Mono', monospace", width: "80%" }}
             />
           ) : (
             <div
               onClick={() => { setNameInput(stint.driver); setEditingName(true); }}
               title="Click to edit driver name"
-              style={{ color, fontWeight: 700, fontSize: 14, letterSpacing: "0.04em", cursor: "text", display: "inline-flex", alignItems: "center", gap: 5 }}
+              style={{ color: isPast ? "#aaa" : color, fontWeight: 700, fontSize: 18, letterSpacing: "0.04em", cursor: "text", display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
             >
               {stint.driver || "—"}
-              <span style={{ fontSize: 9, color: "#444", opacity: 0 }} className="edit-hint">✎</span>
-              {stint.actualEnd != null && <span style={{ color: "#22c55e", fontSize: 10, marginLeft: 4 }}>✓ LOGGED</span>}
-              {isActive && <span style={{ color: "#22c55e", fontSize: 10, marginLeft: 4 }}>● ACTIVE</span>}
-              {stint.fcyEvents.length > 0 && <span style={{ color: "#facc15", fontSize: 10, marginLeft: 4 }}>🟡 {stint.fcyEvents.reduce((a, e) => a + e.durationMins, 0)}m FCY</span>}
+              {stint.actualEnd != null && <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 700 }}>✓ LOGGED</span>}
+              {isActive && <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 700 }}>● ACTIVE</span>}
+              {stint.fcyEvents.length > 0 && <span style={{ color: "#fde68a", fontSize: 13, fontWeight: 700 }}>🟡 {stint.fcyEvents.reduce((a, e) => a + e.durationMins, 0)}m FCY</span>}
             </div>
           )}
           {/* timing */}
-          <div style={{ fontSize: 11, color: "#333", marginTop: 2 }}>
+          <div style={{ fontSize: 14, color: "#f0f0f0", marginTop: 4 }}>
             {displayStart} → {displayEnd}
-            <span style={{ color: "#444", marginLeft: 8 }}>({displayDur})</span>
+            <span style={{ color: "#aaa", marginLeft: 8 }}>({displayDur})</span>
           </div>
           {/* hot pit arrival */}
           {!stint.isLast && (
-            <div style={{ fontSize: 10, color: "#333", marginTop: 4 }}>
-              🏎 <strong style={{ color: "#f4a261" }}>Hot pit arrival: {hotPitTime}</strong>
-              <span style={{ color: "#444", marginLeft: 6 }}>(10 min before end)</span>
+            <div style={{ fontSize: 13, color: "#fbbf24", marginTop: 6 }}>
+              🏎 <strong style={{ color: "#fff" }}>Hot pit: {hotPitTime}</strong>
+              <span style={{ color: "#aaa", marginLeft: 6 }}>(10 min before end)</span>
             </div>
           )}
           {/* flex / pit window */}
-          <div style={{ marginTop: 5 }}>
+          <div style={{ marginTop: 8 }}>
             <FlexBadge flexMins={flexMins} />
           </div>
         </div>
 
         {/* nudge buttons */}
         {!isPast && !stint.isLast && (
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <Btn onClick={() => nudgeEnd(-5)} style={{ fontSize: 10, padding: "3px 8px" }}>-5m</Btn>
-            <Btn onClick={() => nudgeEnd(5)}  style={{ fontSize: 10, padding: "3px 8px", color: "#f4a261" }}>+5m</Btn>
-            <Btn onClick={() => nudgeEnd(10)} style={{ fontSize: 10, padding: "3px 8px", color: "#f4a261" }}>+10m</Btn>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <Btn onClick={() => nudgeEnd(-5)}>-5m</Btn>
+            <Btn onClick={() => nudgeEnd(5)}  style={{ color: "#fbbf24", borderColor: "#fbbf24" }}>+5m</Btn>
+            <Btn onClick={() => nudgeEnd(10)} style={{ color: "#fbbf24", borderColor: "#fbbf24" }}>+10m</Btn>
           </div>
         )}
-        <Btn onClick={openEdit} style={{ fontSize: 10, padding: "4px 10px" }}>
+        <Btn onClick={openEdit}>
           {stint.actualEnd != null ? "✎ EDIT" : "LOG ACTUAL"}
         </Btn>
       </div>
 
       {/* fuel / note summary */}
       {(stint.fuelAdded != null || stint.note) && (
-        <div style={{ marginTop: 8, fontSize: 11, color: "#333", display: "flex", gap: 16 }}>
+        <div style={{ marginTop: 10, fontSize: 13, color: "#f0f0f0", display: "flex", gap: 16, flexWrap: "wrap" }}>
           {stint.fuelAdded != null && <span>⛽ {stint.fuelAdded} gal added</span>}
           {stint.note && <span>📝 {stint.note}</span>}
         </div>
@@ -530,11 +529,11 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
 
       {/* log actual edit panel */}
       {editing && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e5e5", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div><Label>FUEL ADDED (gal)</Label><SI type="number" value={editVals.fuelAdded} onChange={e => setEditVals(v => ({ ...v, fuelAdded: e.target.value }))} placeholder="e.g. 3.2" /></div>
-          <div><Label>ACTUAL START</Label><SI type="time" value={editVals.actualStart} onChange={e => setEditVals(v => ({ ...v, actualStart: e.target.value }))} /></div>
-          <div><Label>ACTUAL END (triggers re-plan)</Label><SI type="time" value={editVals.actualEnd} onChange={e => setEditVals(v => ({ ...v, actualEnd: e.target.value }))} /></div>
-          <div><Label>NOTE</Label><SI value={editVals.note} onChange={e => setEditVals(v => ({ ...v, note: e.target.value }))} placeholder="yellow flag, penalty box..." /></div>
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #2e2e2e", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><Label>Fuel added (gal)</Label><SI type="number" value={editVals.fuelAdded} onChange={e => setEditVals(v => ({ ...v, fuelAdded: e.target.value }))} placeholder="e.g. 3.2" /></div>
+          <div><Label>Actual start</Label><SI type="time" value={editVals.actualStart} onChange={e => setEditVals(v => ({ ...v, actualStart: e.target.value }))} /></div>
+          <div><Label>Actual end (triggers re-plan)</Label><SI type="time" value={editVals.actualEnd} onChange={e => setEditVals(v => ({ ...v, actualEnd: e.target.value }))} /></div>
+          <div><Label>Note</Label><SI value={editVals.note} onChange={e => setEditVals(v => ({ ...v, note: e.target.value }))} placeholder="yellow flag, penalty box..." /></div>
           <div style={{ gridColumn: "1/-1", display: "flex", gap: 8, justifyContent: "flex-end" }}>
             <Btn onClick={() => setEditing(false)}>CANCEL</Btn>
             <Btn onClick={saveEdit} variant="red">SAVE & UPDATE PLAN</Btn>
@@ -544,8 +543,8 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
 
       {/* pit stop spacer */}
       {!stint.isLast && (
-        <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 10, color: "#444", letterSpacing: "0.05em" }}>
-          🔧 PIT STOP — {durStr(config.pitTimeMins)} · next driver out: {toTimeStr((stint.actualEnd ?? stint.plannedEnd) + config.pitTimeMins)}
+        <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #2e2e2e", fontSize: 13, color: "#f0f0f0", letterSpacing: "0.04em" }}>
+          🔧 <strong style={{ color: "#f4a261" }}>PIT STOP</strong> — {durStr(config.pitTimeMins)} · next driver out: <strong style={{ color: "#f0f0f0" }}>{toTimeStr((stint.actualEnd ?? stint.plannedEnd) + config.pitTimeMins)}</strong>
         </div>
       )}
     </div>
@@ -687,91 +686,91 @@ export default function StintPlanner() {
 
   // ── render ─────────────────────────────────────────────────────────────────
   if (fbLoading) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 49px)", color: "#333", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12 }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 49px)", color: "#aaa", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, background: "#111" }}>
       Connecting to race server…
     </div>
   );
 
   return (
-    <div style={{ overflowY: "auto", height: "calc(100vh - 49px)", fontFamily: "'IBM Plex Mono', monospace", color: "#111" }}>
+    <div style={{ overflowY: "auto", height: "calc(100vh - 49px)", fontFamily: "'IBM Plex Mono', monospace", color: "#f0f0f0", background: "#111" }}>
       <div style={{ maxWidth: 820, margin: "0 auto", padding: "20px 16px" }}>
 
         {/* Firebase status bar */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, fontSize: 10, color: "#444" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: fbError ? "#e63946" : "#22c55e" }} />
-            {fbError ? <span style={{ color: "#e63946" }}>Sync error: {fbError}</span> : <span style={{ color: "#444" }}>{lastSync ? `Synced ${lastSync}` : "Connected"} · All team members see live changes</span>}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, fontSize: 12, color: "#aaa" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", background: fbError ? "#e63946" : "#22c55e", flexShrink: 0 }} />
+            {fbError ? <span style={{ color: "#f87171" }}>Sync error: {fbError}</span> : <span>{lastSync ? `Synced ${lastSync}` : "Connected"} · All team members see live changes</span>}
           </div>
-          {built && <button onClick={resetRace} style={{ background: "none", border: "1px solid #555", borderRadius: 4, color: "#333", padding: "2px 8px", fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", cursor: "pointer" }}>RESET RACE</button>}
+          {built && <button onClick={resetRace} style={{ background: "none", border: "1.5px solid #555", borderRadius: 4, color: "#f0f0f0", padding: "4px 10px", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", cursor: "pointer" }}>RESET RACE</button>}
         </div>
 
         {/* CONFIG */}
         <Card>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#e63946", letterSpacing: "0.1em", marginBottom: 14 }}>⚙ RACE CONFIGURATION</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#e63946", letterSpacing: "0.1em", marginBottom: 14, textTransform: "uppercase" }}>⚙ Race Configuration</div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
-            <div style={{ marginBottom: 12 }}><Label>RACE START</Label><SI type="time" value={config.raceStart} onChange={e => setConfig(c => ({ ...c, raceStart: e.target.value }))} /></div>
-            <div style={{ marginBottom: 12 }}><Label>RACE END</Label><SI type="time" value={config.raceEnd} onChange={e => setConfig(c => ({ ...c, raceEnd: e.target.value }))} /></div>
+            <div style={{ marginBottom: 12 }}><Label>Race start</Label><SI type="time" value={config.raceStart} onChange={e => setConfig(c => ({ ...c, raceStart: e.target.value }))} /></div>
+            <div style={{ marginBottom: 12 }}><Label>Race end</Label><SI type="time" value={config.raceEnd} onChange={e => setConfig(c => ({ ...c, raceEnd: e.target.value }))} /></div>
           </div>
 
           <div style={{ marginBottom: 12 }}>
-            <Label>DRIVERS (comma-separated, in rotation order)</Label>
+            <Label>Drivers — comma-separated, in rotation order</Label>
             <SI value={driverInput} onChange={e => setDrivers(e.target.value)} placeholder="Alex, Jordan, Sam" />
           </div>
 
           {/* fuel profile */}
-          <div style={{ background: "rgba(244,162,97,0.1)", border: "1px solid rgba(244,162,97,0.35)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: "#f4a261", letterSpacing: "0.1em", marginBottom: 10 }}>⛽ FUEL PROFILE</div>
+          <div style={{ background: "#1f1a12", border: "1.5px solid #7c4a00", borderRadius: 8, padding: 14, marginBottom: 12 }}>
+            <div style={{ fontSize: 13, color: "#f4a261", letterSpacing: "0.1em", marginBottom: 12, fontWeight: 700, textTransform: "uppercase" }}>⛽ Fuel profile</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 12 }}>
-              <div><Label>TANK SIZE (gal)</Label><SI type="number" value={config.tankGal} onChange={e => setConfig(c => ({ ...c, tankGal: e.target.value }))} placeholder="14.5" /></div>
-              <div><Label>GREEN FLAG BURN (gal/hr)</Label><SI type="number" value={config.burnGalPerHr} onChange={e => setConfig(c => ({ ...c, burnGalPerHr: e.target.value }))} placeholder="6.7" /></div>
+              <div><Label>Tank (gal)</Label><SI type="number" value={config.tankGal} onChange={e => setConfig(c => ({ ...c, tankGal: e.target.value }))} placeholder="14.5" /></div>
+              <div><Label>Green burn (gal/hr)</Label><SI type="number" value={config.burnGalPerHr} onChange={e => setConfig(c => ({ ...c, burnGalPerHr: e.target.value }))} placeholder="6.7" /></div>
               <div>
-                <Label>STINT LENGTH (min)</Label>
+                <Label>Stint length (min)</Label>
                 <SI type="number" value={config.stintLengthMins} onChange={e => setConfig(c => ({ ...c, stintLengthMins: Number(e.target.value) }))} placeholder="103" />
-                {autoStintLen && <div style={{ fontSize: 10, color: "#f4a261", marginTop: 4 }}>↳ fuel calc: {autoStintLen}m (3 gal reserve) <button onClick={() => setConfig(c => ({ ...c, stintLengthMins: autoStintLen }))} style={{ background: "none", border: "none", color: "#f4a261", fontSize: 10, cursor: "pointer", textDecoration: "underline", padding: 0, fontFamily: "inherit" }}>USE</button></div>}
+                {autoStintLen && <div style={{ fontSize: 12, color: "#f4a261", marginTop: 6 }}>↳ fuel calc: {autoStintLen}m <button onClick={() => setConfig(c => ({ ...c, stintLengthMins: autoStintLen }))} style={{ background: "none", border: "none", color: "#f4a261", fontSize: 12, cursor: "pointer", textDecoration: "underline", padding: 0, fontFamily: "inherit" }}>USE</button></div>}
               </div>
             </div>
 
             {/* FCY burn rate */}
-            <div style={{ borderTop: "1px solid rgba(250,204,21,0.1)", paddingTop: 10, marginBottom: 2 }}>
-              <div style={{ fontSize: 10, color: "#facc15", letterSpacing: "0.1em", marginBottom: 8 }}>🟡 FCY BURN RATE</div>
+            <div style={{ borderTop: "1px solid #3a2a00", paddingTop: 12, marginBottom: 2 }}>
+              <div style={{ fontSize: 13, color: "#fde68a", letterSpacing: "0.08em", marginBottom: 10, fontWeight: 700, textTransform: "uppercase" }}>🟡 FCY burn rate</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, alignItems: "end" }}>
                 <div>
-                  <Label>FCY BURN (% of green rate)</Label>
+                  <Label>FCY burn (% of green rate)</Label>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <SI type="number" value={config.fcyPctOfGreen} min={5} max={95} onChange={e => setConfig(c => ({ ...c, fcyPctOfGreen: Number(e.target.value) }))} style={{ width: 70 }} />
-                    <span style={{ fontSize: 11, color: "#333" }}>% &nbsp;(typ. 30–45%)</span>
+                    <SI type="number" value={config.fcyPctOfGreen} min={5} max={95} onChange={e => setConfig(c => ({ ...c, fcyPctOfGreen: Number(e.target.value) }))} style={{ width: 80 }} />
+                    <span style={{ fontSize: 13, color: "#ccc" }}>% (typ. 30–45%)</span>
                   </div>
                 </div>
-                <div style={{ fontSize: 11, color: "#333", lineHeight: 1.8 }}>
+                <div style={{ fontSize: 13, color: "#f0f0f0", lineHeight: 1.9 }}>
                   {config.burnGalPerHr && config.fcyPctOfGreen ? (<>
                     Green: <span style={{ color: "#f4a261" }}>{parseFloat(config.burnGalPerHr).toFixed(1)} gal/hr</span><br />
-                    FCY: <span style={{ color: "#facc15" }}>{(parseFloat(config.burnGalPerHr) * config.fcyPctOfGreen / 100).toFixed(1)} gal/hr</span>
-                  </>) : <span style={{ color: "#444" }}>Enter burn rate to see FCY rate</span>}
+                    FCY: <span style={{ color: "#fde68a" }}>{(parseFloat(config.burnGalPerHr) * config.fcyPctOfGreen / 100).toFixed(1)} gal/hr</span>
+                  </>) : <span style={{ color: "#aaa" }}>Enter burn rate to see FCY rate</span>}
                 </div>
               </div>
             </div>
           </div>
 
           {/* FuelMaxing config */}
-          <div style={{ background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.3)", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: "#a78bfa", letterSpacing: "0.1em", marginBottom: 8 }}>⚡ FUELMAX SETTINGS</div>
+          <div style={{ background: "#19142a", border: "1.5px solid #4c3a8a", borderRadius: 8, padding: 14, marginBottom: 12 }}>
+            <div style={{ fontSize: 13, color: "#a78bfa", letterSpacing: "0.1em", marginBottom: 10, fontWeight: 700, textTransform: "uppercase" }}>⚡ FuelMax settings</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 10, alignItems: "end" }}>
               <div>
-                <Label>TARGET PACE LAP TIME</Label>
+                <Label>Target lap time</Label>
                 <SI value={config.targetPace} onChange={e => setConfig(c => ({ ...c, targetPace: e.target.value }))} placeholder="1:35" style={{ width: "100%" }} />
-                <div style={{ fontSize: 10, color: "#333", marginTop: 4 }}>format: m:ss (e.g. 1:35)</div>
+                <div style={{ fontSize: 12, color: "#aaa", marginTop: 6 }}>format: m:ss (e.g. 1:35)</div>
               </div>
-              <div style={{ fontSize: 11, color: "#333", lineHeight: 1.8, paddingBottom: 4 }}>
-                Used to estimate laps affected during FuelMaxing.<br />
-                Conservative: -5 sec/lap · Aggressive: -12 sec/lap
+              <div style={{ fontSize: 13, color: "#c4b5fd", lineHeight: 1.9, paddingBottom: 4 }}>
+                Conservative: -5 sec/lap<br />
+                Aggressive: -12 sec/lap
               </div>
             </div>
           </div>
 
-          <div style={{ fontSize: 11, color: "#444", marginBottom: 14 }}>🔧 Pit stop: <span style={{ color: "#333" }}>5 min</span> (driver change + fuel)</div>
+          <div style={{ fontSize: 13, color: "#ccc", marginBottom: 16 }}>🔧 Pit stop: <strong style={{ color: "#f0f0f0" }}>5 min</strong> (driver change + fuel)</div>
 
-          <button onClick={build} style={{ width: "100%", background: "#e63946", border: "none", borderRadius: 8, color: "#fff", padding: "12px", fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>
+          <button onClick={build} style={{ width: "100%", background: "#e63946", border: "none", borderRadius: 8, color: "#fff", padding: "16px", fontSize: 15, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>
             {built ? "↻ REBUILD PLAN (syncs to all devices)" : "BUILD STINT PLAN →"}
           </button>
         </Card>
@@ -779,19 +778,19 @@ export default function StintPlanner() {
         {built && stints.length > 0 && (<>
 
           {/* SUMMARY */}
-          <div style={{ display: "flex", justifyContent: "space-around", background: "#ffffff", border: "1px solid #e5e5e5", borderRadius: 10, padding: "14px 16px", marginBottom: 14, flexWrap: "wrap", gap: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(70px, 1fr))", background: "#1c1c1c", border: "1px solid #2e2e2e", borderRadius: 10, padding: "14px 16px", marginBottom: 14, gap: 12 }}>
             {[
-              ["STINTS", stints.length],
-              ["RACE", durStr(totalRaceMins)],
-              ["DRIVE", durStr(totalDriveMins)],
-              ["PIT TIME", durStr(totalPitMins)],
-              ["DONE", `${completedStints}/${stints.length}`],
-              totalFCYMins > 0 && ["FCY", durStr(totalFCYMins)],
-              avgFuel && ["AVG FUEL", `${avgFuel} gal`],
-            ].filter(Boolean).map(([label, val]) => (
+              ["STINTS", stints.length, "#f0f0f0"],
+              ["RACE", durStr(totalRaceMins), "#f0f0f0"],
+              ["DRIVE", durStr(totalDriveMins), "#f0f0f0"],
+              ["PIT", durStr(totalPitMins), "#f4a261"],
+              ["DONE", `${completedStints}/${stints.length}`, "#22c55e"],
+              totalFCYMins > 0 && ["FCY", durStr(totalFCYMins), "#fde68a"],
+              avgFuel && ["AVG FUEL", `${avgFuel}g`, "#f4a261"],
+            ].filter(Boolean).map(([label, val, clr]) => (
               <div key={label} style={{ textAlign: "center" }}>
-                <div style={{ color: label === "FCY" ? "#facc15" : "#e63946", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 20, letterSpacing: "0.05em" }}>{val}</div>
-                <div style={{ color: "#444", fontSize: 10, letterSpacing: "0.08em", marginTop: 1 }}>{label}</div>
+                <div style={{ color: clr, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 24, letterSpacing: "0.05em" }}>{val}</div>
+                <div style={{ color: "#aaa", fontSize: 11, letterSpacing: "0.08em", marginTop: 2 }}>{label}</div>
               </div>
             ))}
           </div>
@@ -801,36 +800,41 @@ export default function StintPlanner() {
 
           {/* CLOCK */}
           <Card>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", marginBottom: 10 }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#444", cursor: "pointer" }}>
-                <input type="checkbox" checked={useRealClock} onChange={e => setUseRealClock(e.target.checked)} style={{ accentColor: "#22c55e" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", marginBottom: 12 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#f0f0f0", cursor: "pointer" }}>
+                <input type="checkbox" checked={useRealClock} onChange={e => setUseRealClock(e.target.checked)} style={{ accentColor: "#22c55e", width: 18, height: 18 }} />
                 Use real clock
               </label>
               {!useRealClock && (<>
-                <span style={{ fontSize: 10, color: "#444" }}>MANUAL TIME:</span>
+                <span style={{ fontSize: 13, color: "#aaa" }}>MANUAL TIME:</span>
                 <input type="time" value={manualTime} onChange={e => setManualTime(e.target.value)}
-                  style={{ background: "#fff", border: "1px solid #ccc", borderRadius: 6, color: "#111", padding: "4px 8px", fontSize: 12, fontFamily: "'IBM Plex Mono', monospace" }} />
+                  style={{ background: "#2a2a2a", border: "1.5px solid #444", borderRadius: 6, color: "#f0f0f0", padding: "8px 10px", fontSize: 15, fontFamily: "'IBM Plex Mono', monospace" }} />
               </>)}
               {nowMins != null && (
-                <div style={{ marginLeft: "auto", fontSize: 11 }}>
-                  <span style={{ color: "#22c55e" }}>{toTimeStr(nowMins)}</span>
-                  <span style={{ color: "#444", marginLeft: 10 }}>+{durStr(Math.max(0, elapsed))}</span>
-                  <span style={{ color: remaining < 60 ? "#e63946" : "#555", marginLeft: 10 }}>
+                <div style={{ marginLeft: "auto", fontSize: 14 }}>
+                  <span style={{ color: "#22c55e", fontWeight: 700 }}>{toTimeStr(nowMins)}</span>
+                  <span style={{ color: "#aaa", marginLeft: 10 }}>+{durStr(Math.max(0, elapsed))}</span>
+                  <span style={{ color: remaining < 60 ? "#e63946" : "#aaa", marginLeft: 10, fontWeight: remaining < 60 ? 700 : 400 }}>
                     {remaining > 0 ? `${durStr(remaining)} left` : "RACE OVER"}
                   </span>
                 </div>
               )}
             </div>
-            <div style={{ height: 4, background: "#e5e5e5", borderRadius: 2, overflow: "hidden" }}>
-              <div style={{ width: `${clockPct}%`, height: "100%", background: "#22c55e", borderRadius: 2, transition: "width 2s linear" }} />
+            <div style={{ height: 8, background: "#2a2a2a", borderRadius: 4, overflow: "hidden", marginBottom: 6 }}>
+              <div style={{ width: `${clockPct}%`, height: "100%", background: "#22c55e", borderRadius: 4, transition: "width 2s linear" }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#aaa" }}>
+              <span>{config.raceStart} START</span>
+              <span style={{ color: "#22c55e" }}>{Math.round(clockPct)}% complete</span>
+              <span>{config.raceEnd} END</span>
             </div>
           </Card>
 
           {/* STINTS */}
           <Card>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#e63946", letterSpacing: "0.1em", marginBottom: 6 }}>STINT SCHEDULE</div>
-            <div style={{ fontSize: 11, color: "#444", marginBottom: 14 }}>
-              Click driver name to edit · LOG ACTUAL after each stop · ±5m nudge · 🟡 FCY bank
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#e63946", letterSpacing: "0.1em", marginBottom: 6, textTransform: "uppercase" }}>Stint schedule</div>
+            <div style={{ fontSize: 13, color: "#aaa", marginBottom: 14 }}>
+              Tap driver name to edit · LOG ACTUAL after each stop · ±5m nudge · 🟡 FCY bank
             </div>
             {stints.map((s, i) => (
               <StintRow key={s.id} stint={s} idx={i}
@@ -842,18 +846,18 @@ export default function StintPlanner() {
           {/* FUEL LOG */}
           {fuelLogged.length > 0 && (
             <Card>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#f4a261", letterSpacing: "0.1em", marginBottom: 12 }}>⛽ FUEL LOG</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#f4a261", letterSpacing: "0.1em", marginBottom: 14, textTransform: "uppercase" }}>⛽ Fuel log</div>
               {fuelLogged.map(s => (
-                <div key={s.id} style={{ display: "flex", gap: 12, marginBottom: 6, fontSize: 12, color: "#ccc" }}>
-                  <span style={{ color: driverColor(s.driver, config.drivers), width: 24 }}>S{s.id}</span>
+                <div key={s.id} style={{ display: "flex", gap: 12, marginBottom: 8, fontSize: 14, color: "#f0f0f0", alignItems: "center" }}>
+                  <span style={{ color: driverColor(s.driver, config.drivers), width: 28, fontWeight: 700 }}>S{s.id}</span>
                   <span>{s.driver}</span>
-                  <span style={{ marginLeft: "auto", color: "#f4a261" }}>{s.fuelAdded} gal</span>
-                  <span style={{ color: "#444" }}>@ {toTimeStr(s.actualEnd)}</span>
+                  <span style={{ marginLeft: "auto", color: "#f4a261", fontWeight: 700 }}>{s.fuelAdded} gal</span>
+                  <span style={{ color: "#aaa" }}>@ {toTimeStr(s.actualEnd)}</span>
                 </div>
               ))}
-              <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "#333" }}>
-                Total: {fuelLogged.reduce((a, s) => a + s.fuelAdded, 0).toFixed(2)} gal · Avg/stop: {avgFuel} gal
-                {config.tankGal && <span style={{ marginLeft: 12, color: "#444" }}>(tank: {config.tankGal} gal · {FUEL_RESERVE_GAL} gal reserve)</span>}
+              <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #2e2e2e", fontSize: 13, color: "#f0f0f0" }}>
+                Total: <strong>{fuelLogged.reduce((a, s) => a + s.fuelAdded, 0).toFixed(2)} gal</strong> · Avg/stop: <strong>{avgFuel} gal</strong>
+                {config.tankGal && <span style={{ marginLeft: 12, color: "#aaa" }}>(tank: {config.tankGal} gal · {FUEL_RESERVE_GAL} gal reserve)</span>}
               </div>
             </Card>
           )}

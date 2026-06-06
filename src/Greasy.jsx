@@ -48,11 +48,26 @@ LEMONS CONTEXT:
 - Race priorities: reliability > lap time. Getting back on track matters more than a perfect repair.
 - Trailer spares to always have: coil packs (x4), IAC valve, MAF sensor, coolant hoses, serpentine belt, fuses, throttle body (DBW, 2003–2005 compatible)
 
+OUR CAR — RACE-SPECIFIC SPECS (override stock manual values where listed):
+- Cold tire pressure: 28 psi (our target — not stock spec)
+- Oil capacity: 4.9 qts (stock is 4.8L/5.1 qts; we added an oil cooler and run extra headroom)
+- Oil: Shell Rotella T6 Full Synthetic 5W-40 Diesel Engine Oil — NOT the stock 5W-30. We run this to handle higher oil temps from racing.
+- Oil filter: K&N HP-2009 (higher filtering capacity than OEM)
+- Wheel lug nut torque: 100 lb-ft
+- Heater core: bypassed with a coolant loop — no heater function
+- Power steering: Prius electric power steering unit (not stock Celica hydraulic — no PS fluid, no PS pump to worry about)
+- A/C: deleted entirely
+- Drivetrain: FWD, C60 6-speed manual, no limited-slip differential
+
 BEHAVIOR:
 - Be direct and practical. Give torque specs and part numbers, not vague suggestions.
 - Use web search for current Lemons rules, parts sourcing, pricing, and community tips. Include source URLs.
 - When a question could apply to 1ZZ-FE or 2ZZ-GE, always clarify and default to 2ZZ-GE.
 - Flag DBW limitations whenever throttle, ECU, or tune questions come up.
+- Always apply our race-specific specs above when relevant — don't quote stock manual values for oil, tires, or wheels without noting our overrides.
+- MINIMIZE ASSUMPTIONS. This is critical. If you are making an assumption, say so explicitly and explain your reasoning.
+- Always tell the team if information comes from: (a) our shop manual docs, (b) a web search, or (c) general automotive knowledge not specific to the 2005 Celica GT-S. Be explicit about the source.
+- If something is not 2005 Celica GT-S ZZT231 specific — e.g. it applies to the ZZT230 or another platform — say so.
 - If you're not sure about something, say so and search rather than guess.
 - Keep answers tight — the team is in the pits, not a library.`;
 
@@ -93,23 +108,23 @@ function Bubble({ msg }) {
     }}>
       {!isUser && (
         <div style={{
-          flexShrink: 0, width: 30, height: 30, borderRadius: "50%",
+          flexShrink: 0, width: 34, height: 34, borderRadius: "50%",
           background: "#1a1a1a", border: "1.5px solid #e63946",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, marginTop: 2,
+          fontSize: 16, marginTop: 2,
         }}>⚙</div>
       )}
       <div style={{
         maxWidth: "80%",
         minWidth: 0,
         overflow: "hidden",
-        background: isUser ? "linear-gradient(135deg,#e63946,#c1121f)" : "#ffffff",
-        border: isUser ? "none" : "1px solid #e5e5e5",
+        background: isUser ? "#e63946" : "#1c1c1c",
+        border: isUser ? "none" : "1.5px solid #2e2e2e",
         borderRadius: isUser ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
-        padding: "12px 16px",
-        color: isUser ? "#fff" : "#111",
-        fontSize: 13,
-        lineHeight: 1.7,
+        padding: "14px 16px",
+        color: "#f0f0f0",
+        fontSize: 15,
+        lineHeight: 1.75,
         fontFamily: "'IBM Plex Mono', monospace",
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
@@ -121,9 +136,9 @@ function Bubble({ msg }) {
       </div>
       {isUser && (
         <div style={{
-          flexShrink: 0, width: 30, height: 30, borderRadius: "50%",
+          flexShrink: 0, width: 34, height: 34, borderRadius: "50%",
           background: "#e63946", display: "flex", alignItems: "center",
-          justifyContent: "center", fontSize: 12, fontWeight: 700,
+          justifyContent: "center", fontSize: 13, fontWeight: 700,
           color: "#fff", marginTop: 2,
         }}>U</div>
       )}
@@ -189,7 +204,7 @@ export default function Greasy() {
   const empty = messages.length === 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 49px)", width: "100%", maxWidth: "100vw", overflowX: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 49px)", width: "100%", maxWidth: "100vw", overflowX: "hidden", background: "#111" }}>
       {/* messages */}
       <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", WebkitOverflowScrolling: "touch", padding: "24px 20px", maxWidth: 800, margin: "0 auto", width: "100%" }}>
         {empty && (
@@ -197,24 +212,24 @@ export default function Greasy() {
             <div style={{
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 900, fontSize: 52, letterSpacing: "0.1em",
-              color: "rgba(230,57,70,0.2)", marginBottom: 6,
+              color: "rgba(230,57,70,0.25)", marginBottom: 6,
             }}>GREASY</div>
-            <div style={{ color: "#444", fontSize: 11, letterSpacing: "0.1em", marginBottom: 36 }}>
+            <div style={{ color: "#aaa", fontSize: 13, letterSpacing: "0.12em", marginBottom: 36 }}>
               2ZZ-GE PIT CREW AI · READY
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center", maxWidth: 580, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, maxWidth: 560, margin: "0 auto", textAlign: "left" }}>
               {QUICK_QUESTIONS.map((q, i) => (
                 <button key={i} onClick={() => send(q)} style={{
-                  background: "#fff",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 6, padding: "8px 13px",
-                  color: "#333", fontSize: 11,
+                  background: "#1c1c1c",
+                  border: "1.5px solid #333",
+                  borderRadius: 8, padding: "11px 14px",
+                  color: "#f0f0f0", fontSize: 13,
                   fontFamily: "'IBM Plex Mono', monospace",
                   cursor: "pointer", letterSpacing: "0.02em",
-                  transition: "all 0.15s",
+                  lineHeight: 1.4, textAlign: "left",
                 }}
-                  onMouseEnter={e => { e.target.style.borderColor = "#e63946"; e.target.style.color = "#e63946"; }}
-                  onMouseLeave={e => { e.target.style.borderColor = "#e0e0e0"; e.target.style.color = "#555"; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "#e63946"; e.currentTarget.style.color = "#e63946"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "#333"; e.currentTarget.style.color = "#f0f0f0"; }}
                 >{q}</button>
               ))}
             </div>
@@ -226,13 +241,13 @@ export default function Greasy() {
         {loading && (
           <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 20 }}>
             <div style={{
-              flexShrink: 0, width: 30, height: 30, borderRadius: "50%",
-              background: "#fff", border: "1.5px solid #e63946",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
+              flexShrink: 0, width: 34, height: 34, borderRadius: "50%",
+              background: "#1a1a1a", border: "1.5px solid #e63946",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16,
             }}>⚙</div>
             <div style={{
-              background: "#fff", border: "1px solid #e5e5e5",
-              borderRadius: "4px 18px 18px 18px", padding: "8px 14px",
+              background: "#1c1c1c", border: "1.5px solid #2e2e2e",
+              borderRadius: "4px 18px 18px 18px", padding: "10px 16px",
             }}>
               <Spinner />
             </div>
@@ -241,9 +256,9 @@ export default function Greasy() {
 
         {error && (
           <div style={{
-            background: "rgba(230,57,70,0.1)", border: "1px solid rgba(230,57,70,0.35)",
-            borderRadius: 8, padding: "10px 14px", color: "#e63946",
-            fontSize: 12, marginBottom: 16,
+            background: "#2a0a0a", border: "1.5px solid #7f1d1d",
+            borderRadius: 8, padding: "14px 16px", color: "#f87171",
+            fontSize: 14, marginBottom: 16,
           }}>⚠ {error}</div>
         )}
         <div ref={bottomRef} />
@@ -251,15 +266,15 @@ export default function Greasy() {
 
       {/* input */}
       <div style={{
-        borderTop: "1px solid #e5e5e5",
-        padding: "14px 20px", background: "#ffffff",
+        borderTop: "1.5px solid #2a2a2a",
+        padding: "14px 20px", background: "#1a1a1a",
         overflow: "hidden",
       }}>
         <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", gap: 10, alignItems: "flex-end" }}>
           <div style={{
-            flex: 1, minWidth: 0, background: "#f9f9f9",
-            border: "1px solid #e0e0e0",
-            borderRadius: 10, padding: "10px 14px",
+            flex: 1, minWidth: 0, background: "#222",
+            border: "1.5px solid #3a3a3a",
+            borderRadius: 10, padding: "11px 14px",
           }}>
             <textarea
               value={input}
@@ -269,7 +284,7 @@ export default function Greasy() {
               rows={1}
               style={{
                 width: "100%", background: "transparent", border: "none",
-                color: "#111", fontSize: 13, fontFamily: "'IBM Plex Mono', monospace",
+                color: "#f0f0f0", fontSize: 16, fontFamily: "'IBM Plex Mono', monospace",
                 lineHeight: 1.5, resize: "none", minHeight: 22, maxHeight: 120,
                 overflow: "auto", outline: "none",
               }}
@@ -283,15 +298,15 @@ export default function Greasy() {
             onClick={() => send()}
             disabled={loading || !input.trim()}
             style={{
-              background: loading || !input.trim() ? "#e0e0e0" : "#e63946",
+              background: loading || !input.trim() ? "#2a2a2a" : "#e63946",
               border: "none", borderRadius: 10,
-              width: 44, height: 44,
+              width: 48, height: 48,
               display: "flex", alignItems: "center", justifyContent: "center",
               cursor: loading || !input.trim() ? "not-allowed" : "pointer",
               transition: "background 0.15s", flexShrink: 0,
             }}
           >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
               stroke={loading || !input.trim() ? "#555" : "#fff"}
               strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="22" y1="2" x2="11" y2="13" />
@@ -299,7 +314,7 @@ export default function Greasy() {
             </svg>
           </button>
         </div>
-        <div style={{ maxWidth: 800, margin: "5px auto 0", fontSize: 10, color: "#444", paddingLeft: 2 }}>
+        <div style={{ maxWidth: 800, margin: "6px auto 0", fontSize: 12, color: "#555", paddingLeft: 2 }}>
           ENTER to send · SHIFT+ENTER for newline
         </div>
       </div>
