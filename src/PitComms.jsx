@@ -25,8 +25,8 @@ const COMMANDS = [
   { key: "SIP_TEA",      label: "🫖 SIP TEA",    color: "#15803d", sub: "stay out — racing" },
   { key: "EASY_TURBO",   label: "EASY, TURBO",   color: "#0c4a6e", sub: "No black flags" },
   { key: "DRIVE_FASTER", label: "DRIVE FASTER",  color: "#7c3aed", sub: null },
-  { key: "BOX_SOON",     label: "BOX SOON",      color: "#c2410c", sub: "fuel crew ready" },
-  { key: "BOX_NOW",      label: "BOX NOW",       color: "#e63946", sub: "come in this lap" },
+  { key: "BOX_SOON",     label: "BOX SOON",      color: "#c2410c", sub: "Fuel crew ready" },
+  { key: "BOX_NOW",      label: "BOX NOW",       color: "#e63946", sub: "Come in this lap" },
 ];
 
 // ─── Driver display (full-screen in-car view) ──────────────────────────────────
@@ -159,10 +159,10 @@ export function DriverDisplay() {
 
       {/* main command */}
       {cmdDef ? (
-        <div className={flashing ? "cmd-flash" : ""} style={{ background: cmdDef.color, borderRadius: 14, padding: "28px 20px", textAlign: "center", width: "100%", maxWidth: 480 }}>
+        <div className={flashing ? "cmd-flash" : ""} style={{ background: cmdDef.color, borderRadius: 14, padding: "52px 24px", textAlign: "center", width: "100%", maxWidth: 480 }}>
           <div style={{
-            fontSize: cmdDef.label.length > 11 ? 38 : cmdDef.label.length > 8 ? 46 : 56,
-            fontWeight: 900, color: "#fff", letterSpacing: "0.06em", lineHeight: 1.1,
+            fontSize: cmdDef.label.length > 11 ? 72 : cmdDef.label.length > 8 ? 88 : 108,
+            fontWeight: 900, color: "#fff", letterSpacing: "0.06em", lineHeight: 1.05,
             fontFamily: "'Barlow Condensed', sans-serif", wordBreak: "break-word", overflowWrap: "break-word",
           }}>
             {cmdDef.label}
@@ -170,13 +170,13 @@ export function DriverDisplay() {
         </div>
       ) : (
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 20, color: "#f0f0f0", letterSpacing: "0.1em" }}>STANDING BY</div>
+          <div style={{ fontSize: 32, color: "#f0f0f0", letterSpacing: "0.1em" }}>STANDING BY</div>
         </div>
       )}
 
       {/* custom message */}
       {custom && (
-        <div style={{ background: msgStyle.bg, border: `1.5px solid ${msgStyle.border}`, borderRadius: 12, padding: "16px 20px", textAlign: "center", width: "100%", maxWidth: 480, fontSize: 18, color: msgStyle.text, lineHeight: 1.5, fontWeight: 700 }}>
+        <div style={{ background: msgStyle.bg, border: `1.5px solid ${msgStyle.border}`, borderRadius: 12, padding: "20px 20px", textAlign: "center", width: "100%", maxWidth: 480, fontSize: 28, color: msgStyle.text, lineHeight: 1.4, fontWeight: 700 }}>
           {custom}
         </div>
       )}
@@ -185,15 +185,15 @@ export function DriverDisplay() {
       {(pitIn || hotPit) && (
         <div style={{ background: "#1c1c1c", border: "1.5px solid #f4a261", borderRadius: 12, padding: "16px 20px", textAlign: "center", width: "100%", maxWidth: 480 }}>
           {pitIn && (
-            <div style={{ marginBottom: hotPit ? 10 : 0 }}>
-              <div style={{ fontSize: 12, color: "#f0f0f0", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 3 }}>Pit target</div>
-              <div style={{ fontSize: 42, fontWeight: 900, color: "#f4a261", fontFamily: "'Barlow Condensed', sans-serif" }}>{pitIn}</div>
+            <div style={{ marginBottom: hotPit ? 12 : 0 }}>
+              <div style={{ fontSize: 14, color: "#f0f0f0", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 3 }}>Pit target</div>
+              <div style={{ fontSize: 64, fontWeight: 900, color: "#f4a261", fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }}>{pitIn}</div>
             </div>
           )}
           {hotPit && (
             <div>
-              <div style={{ fontSize: 11, color: "#ccc", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Pit window start</div>
-              <div style={{ fontSize: 26, fontWeight: 700, color: "#fbbf24", fontFamily: "'Barlow Condensed', sans-serif" }}>{hotPit}</div>
+              <div style={{ fontSize: 13, color: "#ccc", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 2 }}>Pit window start</div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: "#fbbf24", fontFamily: "'Barlow Condensed', sans-serif", lineHeight: 1 }}>{hotPit}</div>
             </div>
           )}
         </div>
@@ -206,19 +206,19 @@ export function DriverDisplay() {
             <div style={{
               background: car.isPersonalBest ? "#1a1535" : car.isYellow ? "#1f1a00" : "#1c1c1c",
               border: `1.5px solid ${car.isPersonalBest ? "#a78bfa" : car.isYellow ? "#fbbf24" : "#2e2e2e"}`,
-              borderRadius: 10, padding: "12px 10px", textAlign: "center",
+              borderRadius: 10, padding: "18px 14px", textAlign: "center",
               minWidth: 0, overflow: "hidden",
             }}>
-              <div style={{ fontSize: 11, color: car.isPersonalBest ? "#a78bfa" : car.isYellow ? "#fbbf24" : "#f0f0f0", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ fontSize: 14, color: car.isPersonalBest ? "#a78bfa" : car.isYellow ? "#fbbf24" : "#f0f0f0", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {car.isPersonalBest ? "⚡ NEW BEST" : car.isYellow ? "🟡 FCY lap" : "Last lap"}
               </div>
-              <div style={{ fontSize: 26, fontWeight: 700, color: lapColor(car.isYellow, car.isPersonalBest), fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: 44, fontWeight: 700, color: lapColor(car.isYellow, car.isPersonalBest), fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
                 {car.lastLap ?? "—"}
               </div>
             </div>
-            <div style={{ background: "#1c1c1c", border: "1.5px solid #2e2e2e", borderRadius: 10, padding: "12px 10px", textAlign: "center", minWidth: 0, overflow: "hidden" }}>
-              <div style={{ fontSize: 11, color: "#f0f0f0", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6 }}>Best lap</div>
-              <div style={{ fontSize: 26, fontWeight: 700, color: "#4ade80", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+            <div style={{ background: "#1c1c1c", border: "1.5px solid #2e2e2e", borderRadius: 10, padding: "18px 14px", textAlign: "center", minWidth: 0, overflow: "hidden" }}>
+              <div style={{ fontSize: 14, color: "#f0f0f0", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>Best lap</div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: "#4ade80", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
                 {car.bestLap ?? "—"}
               </div>
             </div>
