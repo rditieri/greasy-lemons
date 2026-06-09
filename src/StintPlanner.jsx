@@ -752,9 +752,13 @@ export default function StintPlanner() {
     let updatedLast = { ...last, isLast: false };
 
     // If adding would exceed race end, shorten the current last stint to make room
+    // Only shorten if there's actually room (new end must be after the stint's start)
     if (lastEnd + spaceNeeded > raceEndMins) {
       const newLastEnd = raceEndMins - spaceNeeded;
-      updatedLast = { ...updatedLast, plannedEnd: newLastEnd, plannedDuration: newLastEnd - lastStart };
+      if (newLastEnd > lastStart) {
+        updatedLast = { ...updatedLast, plannedEnd: newLastEnd, plannedDuration: newLastEnd - lastStart };
+      }
+      // else: no room to fit cleanly — append past race end and let user adjust via PLAN
     }
 
     const newStart = (updatedLast.actualEnd ?? updatedLast.plannedEnd) + config.pitTimeMins;
