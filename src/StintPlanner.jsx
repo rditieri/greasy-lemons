@@ -404,10 +404,12 @@ function SuggestionBanner({ suggestion, onApply, targetPace }) {
 // ─── StintRow ─────────────────────────────────────────────────────────────────
 
 function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) {
-  const [editingName, setEditingName] = useState(false);
-  const [nameInput, setNameInput]     = useState(stint.driver);
-  const [editing, setEditing]         = useState(false);
-  const [editVals, setEditVals]       = useState({});
+  const [editingName, setEditingName]   = useState(false);
+  const [nameInput, setNameInput]       = useState(stint.driver);
+  const [editing, setEditing]           = useState(false);
+  const [editVals, setEditVals]         = useState({});
+  const [editingPlan, setEditingPlan]   = useState(false);
+  const [planVals, setPlanVals]         = useState({});
   const nameRef = useRef(null);
 
   const color = driverColor(stint.driver, drivers);
@@ -461,6 +463,29 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
     } : s);
     saveStints(aEnd != null || durOverride != null ? regenFrom(updated, idx, config) : updated);
     setEditing(false);
+  };
+
+  // ── plan edit ──
+  const openPlanEdit = () => {
+    setPlanVals({
+      plannedStart: toTimeStr(stint.plannedStart),
+      duration: String(stint.plannedDuration),
+    });
+    setEditingPlan(true);
+  };
+
+  const savePlanEdit = () => {
+    const newStart = planVals.plannedStart ? toMins(planVals.plannedStart) : stint.plannedStart;
+    const newDur   = planVals.duration     ? parseInt(planVals.duration, 10) : stint.plannedDuration;
+    const newEnd   = newStart + newDur;
+    const updated  = stints.map((s, i) => i === idx ? {
+      ...s,
+      plannedStart:    newStart,
+      plannedEnd:      newEnd,
+      plannedDuration: newDur,
+    } : s);
+    saveStints(regenFrom(updated, idx, config));
+    setEditingPlan(false);
   };
 
   const nudgeEnd = (delta) => {
@@ -533,9 +558,12 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
             <Btn onClick={() => nudgeEnd(10)} style={{ color: "#fbbf24", borderColor: "#fbbf24" }}>+10m</Btn>
           </div>
         )}
-        <Btn onClick={openEdit}>
-          {stint.actualEnd != null ? "✎ EDIT" : "LOG ACTUAL"}
-        </Btn>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <Btn onClick={openPlanEdit} style={{ color: "#60a5fa", borderColor: "#60a5fa" }}>✎ PLAN</Btn>
+          <Btn onClick={openEdit}>
+            {stint.actualEnd != null ? "✎ EDIT" : "LOG ACTUAL"}
+          </Btn>
+        </div>
       </div>
 
       {/* fuel / note summary */}
@@ -550,6 +578,25 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
       {!isPast && (
         <FCYLogger stint={stint} idx={idx} stints={stints} saveStints={saveStints}
           greenBurnGalPerHr={config.burnGalPerHr} fcyPctOfGreen={config.fcyPctOfGreen} config={config} />
+      )}
+
+      {/* plan edit panel */}
+      {editingPlan && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #2e2e2e", display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 10 }}>
+          <div>
+            <Label>Planned start</Label>
+            <SI type="time" value={planVals.plannedStart} onChange={e => setPlanVals(v => ({ ...v, plannedStart: e.target.value }))} />
+          </div>
+          <div>
+            <Label>Duration (min)</Label>
+            <SI type="number" value={planVals.duration} onChange={e => setPlanVals(v => ({ ...v, duration: e.target.value }))} placeholder="e.g. 90" />
+            <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>Re-plans all subsequent stints</div>
+          </div>
+          <div style={{ gridColumn: "1/-1", display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <Btn onClick={() => setEditingPlan(false)}>CANCEL</Btn>
+            <Btn onClick={savePlanEdit} style={{ background: "#1e3a5f", borderColor: "#60a5fa", color: "#60a5fa" }}>SAVE PLAN CHANGE</Btn>
+          </div>
+        </div>
       )}
 
       {/* log actual edit panel */}
