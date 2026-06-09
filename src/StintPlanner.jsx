@@ -238,7 +238,12 @@ function Btn({ onClick, children, variant = "default", disabled, style = {} }) {
 
 // ─── Flex Badge ───────────────────────────────────────────────────────────────
 
-function FlexBadge({ flexMins }) {
+function FlexBadge({ flexMins, overFuelBy }) {
+  if (overFuelBy > 0) return (
+    <span style={{ fontSize: 12, color: "#f87171", background: "#450a0a", borderRadius: 4, padding: "3px 9px", letterSpacing: "0.05em", fontWeight: 700 }}>
+      ⚠ OVER FUEL LIMIT +{overFuelBy}m — will run dry
+    </span>
+  );
   if (flexMins <= 0) return (
     <span style={{ fontSize: 12, color: "#aaa", letterSpacing: "0.05em" }}>FULL STINT</span>
   );
@@ -428,8 +433,10 @@ function StintRow({ stint, idx, drivers, stints, saveStints, removeStint, config
   const isActive = nowMins != null && nowMins >= (stint.actualStart ?? stint.plannedStart) && nowMins < (stint.actualEnd ?? stint.plannedEnd);
   const isPast   = nowMins != null && nowMins >= (stint.actualEnd ?? stint.plannedEnd);
 
-  const hotPitTime = toTimeStr((stint.actualEnd ?? stint.plannedEnd) - 10);
-  const flexMins   = calcFlex(stint.plannedDuration, config.tankGal, config.burnGalPerHr, config.stintLengthMins);
+  const hotPitTime  = toTimeStr((stint.actualEnd ?? stint.plannedEnd) - 10);
+  const fuelRange   = calcFuelRange(parseFloat(config.tankGal), parseFloat(config.burnGalPerHr));
+  const flexMins    = calcFlex(stint.plannedDuration, config.tankGal, config.burnGalPerHr, config.stintLengthMins);
+  const overFuelBy  = fuelRange != null ? Math.max(0, stint.plannedDuration - fuelRange) : 0;
 
   // ── driver name edit ──
   const saveName = () => {
@@ -555,7 +562,7 @@ function StintRow({ stint, idx, drivers, stints, saveStints, removeStint, config
           )}
           {/* flex / pit window */}
           <div style={{ marginTop: 8 }}>
-            <FlexBadge flexMins={flexMins} />
+            <FlexBadge flexMins={flexMins} overFuelBy={overFuelBy} />
           </div>
         </div>
 
@@ -1037,6 +1044,23 @@ export default function StintPlanner() {
             <div style={{ fontSize: 13, color: "#aaa", marginBottom: 14 }}>
               Tap driver name to edit · LOG ACTUAL after each stop · ±5m nudge · 🟡 FCY bank
             </div>
+
+            {/* Fuel overrun warning banner */}
+            {(() => {
+              const fuelRange = calcFuelRange(parseFloat(config.tankGal), parseFloat(config.burnGalPerHr));
+              const overStints = fuelRange != null ? stints.filter(s => s.plannedDuration > fuelRange) : [];
+              if (!overStints.length) return null;
+              return (
+                <div style={{ background: "#450a0a", border: "1.5px solid #dc2626", borderLeft: "5px solid #f87171", borderRadius: 8, padding: "14px 16px", marginBottom: 14 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f87171", letterSpacing: "0.08em", marginBottom: 6 }}>⚠ FUEL WARNING — {overStints.length} stint{overStints.length > 1 ? "s" : ""} will run dry</div>
+                  <div style={{ fontSize: 13, color: "#fca5a5", lineHeight: 1.7 }}>
+                    Tank range at current burn rate: <strong style={{ color: "#f87171" }}>{fuelRange} min</strong>.{" "}
+                    {overStints.map(s => `S${s.id} (${s.driver}): ${s.plannedDuration} min`).join(", ")} exceed{overStints.length === 1 ? "s" : ""} this.
+                    Rebuild with more stints or reduce stint length.
+                  </div>
+                </div>
+              );
+            })()}
             {stints.map((s, i) => (
               <StintRow key={s.id} stint={s} idx={i}
                 drivers={config.drivers} stints={stints} saveStints={saveStints}
