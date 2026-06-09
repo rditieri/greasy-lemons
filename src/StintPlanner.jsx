@@ -22,6 +22,14 @@ function toTimeStr(totalMins) {
   return `${h12}:${String(m).padStart(2, "0")}${ampm}`;
 }
 
+// For <input type="time"> — needs "HH:MM" 24-hour format
+function toTimeInput(totalMins) {
+  const n = ((totalMins % 1440) + 1440) % 1440;
+  const h = Math.floor(n / 60);
+  const m = Math.round(n % 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
 function durStr(mins) {
   if (mins == null) return "—";
   const abs = Math.abs(mins);
@@ -468,7 +476,7 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
   // ── plan edit ──
   const openPlanEdit = () => {
     setPlanVals({
-      plannedStart: toTimeStr(stint.plannedStart),
+      plannedStart: toTimeInput(stint.plannedStart),
       duration: String(stint.plannedDuration),
     });
     setEditingPlan(true);
