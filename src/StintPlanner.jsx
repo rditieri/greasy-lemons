@@ -113,6 +113,17 @@ function generateStints({ raceStartMins, raceEndMins, drivers, stintLengthMins, 
   return stints;
 }
 
+// Even mode: same number of stints as Optimized, but drive time split equally.
+// Every driver gets the same stint length — no short last stint.
+function generateStintsEven({ raceStartMins, raceEndMins, drivers, stintLengthMins, pitTimeMins }) {
+  const base = generateStints({ raceStartMins, raceEndMins, drivers, stintLengthMins, pitTimeMins });
+  const n = base.length;
+  if (n === 0) return [];
+  const totalRaceMins = raceEndMins - raceStartMins;
+  const evenDuration  = Math.round((totalRaceMins - (n - 1) * pitTimeMins) / n);
+  return generateStints({ raceStartMins, raceEndMins, drivers, stintLengthMins: evenDuration, pitTimeMins });
+}
+
 function regenFrom(stints, fromIdx, config) {
   const { raceEndMins, drivers, stintLengthMins, pitTimeMins } = config;
   const kept = stints.slice(0, fromIdx + 1);
@@ -362,7 +373,7 @@ function SuggestionBanner({ suggestion, onApply, targetPace }) {
       {fm && (
         <div style={{ background: "#1c1c1c", border: "1px solid #333", borderRadius: 6, padding: "12px 14px", marginBottom: 14 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#a78bfa", letterSpacing: "0.1em", marginBottom: 10, textTransform: "uppercase" }}>⚡ FuelMax alternative</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 10, marginBottom: 10 }}>
             {[
               { label: "Conservative (-5 s/lap)", laps: fm.lapsCon, cost: fm.costConTotal, mins: fm.raceMinsCon, wins: fm.conWins },
               { label: "Aggressive (-12 s/lap)",  laps: fm.lapsAgg, cost: fm.costAggTotal, mins: fm.raceMinsAgg, wins: fm.aggWins },
@@ -423,28 +434,38 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
   // ── stint edit ──
   const openEdit = () => {
     setEditVals({
-      actualStart: stint.actualStart != null ? toTimeStr(stint.actualStart) : "",
-      actualEnd:   stint.actualEnd   != null ? toTimeStr(stint.actualEnd)   : "",
-      fuelAdded:   stint.fuelAdded   != null ? String(stint.fuelAdded)      : "",
+      actualStart:      stint.actualStart      != null ? toTimeStr(stint.actualStart) : "",
+      actualEnd:        stint.actualEnd        != null ? toTimeStr(stint.actualEnd)   : "",
+      fuelAdded:        stint.fuelAdded        != null ? String(stint.fuelAdded)      : "",
+      durationOverride: stint.durationOverride != null ? String(stint.durationOverride) : "",
       note: stint.note || "",
     });
     setEditing(true);
   };
 
   const saveEdit = () => {
-    const aStart = editVals.actualStart ? toMins(editVals.actualStart) : null;
-    const aEnd   = editVals.actualEnd   ? toMins(editVals.actualEnd)   : null;
-    const fuel   = editVals.fuelAdded   ? parseFloat(editVals.fuelAdded) : null;
-    const updated = stints.map((s, i) => i === idx
-      ? { ...s, actualStart: aStart, actualEnd: aEnd, fuelAdded: fuel, note: editVals.note }
-      : s);
-    saveStints(aEnd != null ? regenFrom(updated, idx, config) : updated);
+    const aStart      = editVals.actualStart      ? toMins(editVals.actualStart) : null;
+    const aEnd        = editVals.actualEnd        ? toMins(editVals.actualEnd)   : null;
+    const fuel        = editVals.fuelAdded        ? parseFloat(editVals.fuelAdded) : null;
+    const durOverride = editVals.durationOverride ? parseInt(editVals.durationOverride, 10) : null;
+    const base = aStart ?? stint.actualStart ?? stint.plannedStart;
+    const updated = stints.map((s, i) => i === idx ? {
+      ...s,
+      actualStart: aStart,
+      actualEnd: aEnd,
+      fuelAdded: fuel,
+      note: editVals.note,
+      durationOverride: durOverride,
+      plannedEnd: durOverride != null ? base + durOverride : s.plannedEnd,
+      plannedDuration: durOverride != null ? durOverride : s.plannedDuration,
+    } : s);
+    saveStints(aEnd != null || durOverride != null ? regenFrom(updated, idx, config) : updated);
     setEditing(false);
   };
 
   const nudgeEnd = (delta) => {
     const current = stint.actualEnd ?? stint.plannedEnd;
-    const newEnd = Math.max(current + 5, Math.min(config.raceEndMins, current + delta));
+    const newEnd = current + delta;  // no raceEndMins cap — allows manual overrides past race end
     const updated = stints.map((s, i) => i === idx
       ? { ...s, actualEnd: newEnd, plannedEnd: newEnd, plannedDuration: newEnd - (stint.actualStart ?? stint.plannedStart) }
       : s);
@@ -533,11 +554,16 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
 
       {/* log actual edit panel */}
       {editing && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #2e2e2e", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #2e2e2e", display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 10 }}>
           <div><Label>Fuel added (gal)</Label><SI type="number" value={editVals.fuelAdded} onChange={e => setEditVals(v => ({ ...v, fuelAdded: e.target.value }))} placeholder="e.g. 3.2" /></div>
           <div><Label>Actual start</Label><SI type="time" value={editVals.actualStart} onChange={e => setEditVals(v => ({ ...v, actualStart: e.target.value }))} /></div>
           <div><Label>Actual end (triggers re-plan)</Label><SI type="time" value={editVals.actualEnd} onChange={e => setEditVals(v => ({ ...v, actualEnd: e.target.value }))} /></div>
-          <div><Label>Note</Label><SI value={editVals.note} onChange={e => setEditVals(v => ({ ...v, note: e.target.value }))} placeholder="yellow flag, penalty box..." /></div>
+          <div>
+            <Label>Duration override (min)</Label>
+            <SI type="number" value={editVals.durationOverride} onChange={e => setEditVals(v => ({ ...v, durationOverride: e.target.value }))} placeholder="e.g. 60" />
+            <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>Overrides this stint's length and re-plans the rest</div>
+          </div>
+          <div><Label>Note</Label><SI value={editVals.note} onChange={e => setEditVals(v => ({ ...v, note: e.target.value }))} placeholder="yellow flag, short stint, friend driving..." /></div>
           <div style={{ gridColumn: "1/-1", display: "flex", gap: 8, justifyContent: "flex-end" }}>
             <Btn onClick={() => setEditing(false)}>CANCEL</Btn>
             <Btn onClick={saveEdit} variant="red">SAVE & UPDATE PLAN</Btn>
@@ -563,7 +589,8 @@ const DEFAULT_CONFIG = {
   stintLengthMins: 103, pitTimeMins: 5,
   tankGal: "14.5", burnGalPerHr: "6.7",
   fcyPctOfGreen: 40,
-  targetPace: "1:35",  // FuelMaxing target lap time
+  targetPace: "1:35",
+  stintMode: "optimized", // "optimized" | "even"
 };
 
 // ─── main component ───────────────────────────────────────────────────────────
@@ -642,8 +669,9 @@ export default function StintPlanner() {
     const raceEndMins   = toMins(config.raceEnd);
     const newConfig = { ...config, stintLengthMins };
     const cfg = { ...newConfig, raceStartMins, raceEndMins };
-    const newStints = generateStints(cfg);
-    setSuggestion(findSavingSuggestion(cfg));
+    const gen = config.stintMode === "even" ? generateStintsEven : generateStints;
+    const newStints = gen(cfg);
+    setSuggestion(config.stintMode === "even" ? null : findSavingSuggestion(cfg));
     savePlan(newConfig, newStints, true);
   }, [config]);
 
@@ -653,6 +681,22 @@ export default function StintPlanner() {
     if (!suggestion) return;
     buildWithLength(suggestion.newStintLength);
   };
+
+  const addStint = useCallback(() => {
+    if (!stints.length) return;
+    const last = stints[stints.length - 1];
+    const newStart = (last.actualEnd ?? last.plannedEnd) + config.pitTimeMins;
+    const newStint = {
+      id: last.id + 1,
+      driver: config.drivers[stints.length % config.drivers.length],
+      plannedStart: newStart,
+      plannedEnd: newStart + config.stintLengthMins,
+      plannedDuration: config.stintLengthMins,
+      actualStart: null, actualEnd: null, fuelAdded: null, note: "",
+      fcyEvents: [], isLast: true,
+    };
+    saveStints([...stints.map(s => ({ ...s, isLast: false })), newStint]);
+  }, [stints, config, saveStints]);
 
   const resetRace = async () => {
     if (!window.confirm("Reset the entire race plan? This clears all stints and logs for everyone.")) return;
@@ -712,7 +756,7 @@ export default function StintPlanner() {
         <Card>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#e63946", letterSpacing: "0.1em", marginBottom: 14, textTransform: "uppercase" }}>⚙ Race Configuration</div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "0 16px" }}>
             <div style={{ marginBottom: 12 }}><Label>Race start</Label><SI type="time" value={config.raceStart} onChange={e => setConfig(c => ({ ...c, raceStart: e.target.value }))} /></div>
             <div style={{ marginBottom: 12 }}><Label>Race end</Label><SI type="time" value={config.raceEnd} onChange={e => setConfig(c => ({ ...c, raceEnd: e.target.value }))} /></div>
           </div>
@@ -725,7 +769,7 @@ export default function StintPlanner() {
           {/* fuel profile */}
           <div style={{ background: "#1f1a12", border: "1.5px solid #7c4a00", borderRadius: 8, padding: 14, marginBottom: 12 }}>
             <div style={{ fontSize: 13, color: "#f4a261", letterSpacing: "0.1em", marginBottom: 12, fontWeight: 700, textTransform: "uppercase" }}>⛽ Fuel profile</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)", gap: 10, marginBottom: 12 }}>
               <div><Label>Tank (gal)</Label><SI type="number" value={config.tankGal} onChange={e => setConfig(c => ({ ...c, tankGal: e.target.value }))} placeholder="14.5" /></div>
               <div><Label>Green burn (gal/hr)</Label><SI type="number" value={config.burnGalPerHr} onChange={e => setConfig(c => ({ ...c, burnGalPerHr: e.target.value }))} placeholder="6.7" /></div>
               <div>
@@ -738,7 +782,7 @@ export default function StintPlanner() {
             {/* FCY burn rate */}
             <div style={{ borderTop: "1px solid #3a2a00", paddingTop: 12, marginBottom: 2 }}>
               <div style={{ fontSize: 13, color: "#fde68a", letterSpacing: "0.08em", marginBottom: 10, fontWeight: 700, textTransform: "uppercase" }}>🟡 FCY burn rate</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, alignItems: "end" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 10, alignItems: "end" }}>
                 <div>
                   <Label>FCY burn (% of green rate)</Label>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -773,6 +817,31 @@ export default function StintPlanner() {
           </div>
 
           <div style={{ fontSize: 13, color: "#ccc", marginBottom: 16 }}>🔧 Pit stop: <strong style={{ color: "#f0f0f0" }}>5 min</strong> (driver change + fuel)</div>
+
+          {/* Stint mode toggle */}
+          <div style={{ marginBottom: 16 }}>
+            <Label>Stint distribution mode</Label>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 8 }}>
+              {[
+                { key: "optimized", label: "OPTIMIZED", sub: "Full stints, short last" },
+                { key: "even",      label: "EVEN",      sub: "Equal time every driver" },
+              ].map(({ key, label, sub }) => (
+                <button
+                  key={key}
+                  onClick={() => setConfig(c => ({ ...c, stintMode: key }))}
+                  style={{
+                    background: config.stintMode === key ? "#e63946" : "#2a2a2a",
+                    border: `1.5px solid ${config.stintMode === key ? "#e63946" : "#444"}`,
+                    borderRadius: 8, padding: "12px 10px", cursor: "pointer",
+                    fontFamily: "'IBM Plex Mono', monospace", textAlign: "center",
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: "0.06em" }}>{label}</div>
+                  <div style={{ fontSize: 11, color: config.stintMode === key ? "rgba(255,255,255,0.8)" : "#aaa", marginTop: 4 }}>{sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           <button onClick={build} style={{ width: "100%", background: "#e63946", border: "none", borderRadius: 8, color: "#fff", padding: "16px", fontSize: 15, fontWeight: 700, letterSpacing: "0.08em", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace" }}>
             {built ? "↻ REBUILD PLAN (syncs to all devices)" : "BUILD STINT PLAN →"}
@@ -845,6 +914,14 @@ export default function StintPlanner() {
                 drivers={config.drivers} stints={stints} saveStints={saveStints}
                 config={derivedConfig} nowMins={nowMins} />
             ))}
+            <button onClick={addStint} style={{
+              width: "100%", background: "#1c1c1c", border: "1.5px dashed #444",
+              borderRadius: 8, color: "#aaa", padding: "14px", fontSize: 14,
+              fontFamily: "'IBM Plex Mono', monospace", cursor: "pointer", marginTop: 4,
+              letterSpacing: "0.06em",
+            }}>
+              + ADD STINT
+            </button>
           </Card>
 
           {/* FUEL LOG */}
