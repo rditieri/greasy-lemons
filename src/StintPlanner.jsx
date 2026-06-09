@@ -411,7 +411,7 @@ function SuggestionBanner({ suggestion, onApply, targetPace }) {
 
 // ─── StintRow ─────────────────────────────────────────────────────────────────
 
-function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) {
+function StintRow({ stint, idx, drivers, stints, saveStints, removeStint, config, nowMins }) {
   const [editingName, setEditingName]   = useState(false);
   const [nameInput, setNameInput]       = useState(stint.driver);
   const [editing, setEditing]           = useState(false);
@@ -600,9 +600,12 @@ function StintRow({ stint, idx, drivers, stints, saveStints, config, nowMins }) 
             <SI type="number" value={planVals.duration} onChange={e => setPlanVals(v => ({ ...v, duration: e.target.value }))} placeholder="e.g. 90" />
             <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>Re-plans all subsequent stints</div>
           </div>
-          <div style={{ gridColumn: "1/-1", display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <Btn onClick={() => setEditingPlan(false)}>CANCEL</Btn>
-            <Btn onClick={savePlanEdit} style={{ background: "#1e3a5f", borderColor: "#60a5fa", color: "#60a5fa" }}>SAVE PLAN CHANGE</Btn>
+          <div style={{ gridColumn: "1/-1", display: "flex", gap: 8, justifyContent: "space-between", flexWrap: "wrap" }}>
+            <Btn onClick={() => { if (window.confirm(`Remove S${stint.id} (${stint.driver})?`)) { removeStint(idx); setEditingPlan(false); } }} variant="red">REMOVE STINT</Btn>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Btn onClick={() => setEditingPlan(false)}>CANCEL</Btn>
+              <Btn onClick={savePlanEdit} style={{ background: "#1e3a5f", borderColor: "#60a5fa", color: "#60a5fa" }}>SAVE PLAN CHANGE</Btn>
+            </div>
           </div>
         </div>
       )}
@@ -739,18 +742,43 @@ export default function StintPlanner() {
 
   const addStint = useCallback(() => {
     if (!stints.length) return;
-    const last = stints[stints.length - 1];
-    const newStart = (last.actualEnd ?? last.plannedEnd) + config.pitTimeMins;
+    const raceEndMins   = toMins(config.raceEnd);
+    const last          = stints[stints.length - 1];
+    const newStintDur   = config.stintLengthMins;
+    const spaceNeeded   = config.pitTimeMins + newStintDur;
+    const lastEnd       = last.actualEnd ?? last.plannedEnd;
+    const lastStart     = last.actualStart ?? last.plannedStart;
+
+    let updatedLast = { ...last, isLast: false };
+
+    // If adding would exceed race end, shorten the current last stint to make room
+    if (lastEnd + spaceNeeded > raceEndMins) {
+      const newLastEnd = raceEndMins - spaceNeeded;
+      updatedLast = { ...updatedLast, plannedEnd: newLastEnd, plannedDuration: newLastEnd - lastStart };
+    }
+
+    const newStart = (updatedLast.actualEnd ?? updatedLast.plannedEnd) + config.pitTimeMins;
     const newStint = {
       id: last.id + 1,
       driver: config.drivers[stints.length % config.drivers.length],
       plannedStart: newStart,
-      plannedEnd: newStart + config.stintLengthMins,
-      plannedDuration: config.stintLengthMins,
+      plannedEnd: newStart + newStintDur,
+      plannedDuration: newStintDur,
       actualStart: null, actualEnd: null, fuelAdded: null, note: "",
       fcyEvents: [], isLast: true,
     };
-    saveStints([...stints.map(s => ({ ...s, isLast: false })), newStint]);
+    saveStints([...stints.slice(0, -1).map(s => ({ ...s, isLast: false })), updatedLast, newStint]);
+  }, [stints, config, saveStints]);
+
+  const removeStint = useCallback((idx) => {
+    if (stints.length <= 1) return;
+    const filtered = stints.filter((_, i) => i !== idx);
+    const renumbered = filtered.map((s, i) => ({ ...s, id: i + 1, isLast: i === filtered.length - 1 }));
+    if (idx === 0) {
+      saveStints(renumbered);
+    } else {
+      saveStints(regenFrom(renumbered, idx - 1, { ...config, raceEndMins: toMins(config.raceEnd) }).map((s, i) => ({ ...s, id: i + 1 })));
+    }
   }, [stints, config, saveStints]);
 
   const resetRace = async () => {
@@ -967,6 +995,7 @@ export default function StintPlanner() {
             {stints.map((s, i) => (
               <StintRow key={s.id} stint={s} idx={i}
                 drivers={config.drivers} stints={stints} saveStints={saveStints}
+                removeStint={removeStint}
                 config={derivedConfig} nowMins={nowMins} />
             ))}
             <button onClick={addStint} style={{
