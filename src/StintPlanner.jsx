@@ -418,6 +418,7 @@ function StintRow({ stint, idx, drivers, stints, saveStints, removeStint, config
   const [editVals, setEditVals]         = useState({});
   const [editingPlan, setEditingPlan]   = useState(false);
   const [planVals, setPlanVals]         = useState({});
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const nameRef = useRef(null);
 
   const color = driverColor(stint.driver, drivers);
@@ -601,7 +602,10 @@ function StintRow({ stint, idx, drivers, stints, saveStints, removeStint, config
             <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>Re-plans all subsequent stints</div>
           </div>
           <div style={{ gridColumn: "1/-1", display: "flex", gap: 8, justifyContent: "space-between", flexWrap: "wrap" }}>
-            <Btn onClick={() => { if (window.confirm(`Remove S${stint.id} (${stint.driver})?`)) { removeStint(idx); setEditingPlan(false); } }} variant="red">REMOVE STINT</Btn>
+            {confirmRemove
+              ? <Btn variant="red" onClick={() => { removeStint(idx); setEditingPlan(false); setConfirmRemove(false); }}>TAP TO CONFIRM REMOVE</Btn>
+              : <Btn variant="red" onClick={() => setConfirmRemove(true)}>REMOVE STINT</Btn>
+            }
             <div style={{ display: "flex", gap: 8 }}>
               <Btn onClick={() => setEditingPlan(false)}>CANCEL</Btn>
               <Btn onClick={savePlanEdit} style={{ background: "#1e3a5f", borderColor: "#60a5fa", color: "#60a5fa" }}>SAVE PLAN CHANGE</Btn>
@@ -789,13 +793,37 @@ export default function StintPlanner() {
 
   const removeStint = useCallback((idx) => {
     if (stints.length <= 1) return;
-    const filtered = stints.filter((_, i) => i !== idx);
-    const renumbered = filtered.map((s, i) => ({ ...s, id: i + 1, isLast: i === filtered.length - 1 }));
-    if (idx === 0) {
-      saveStints(renumbered);
-    } else {
-      saveStints(regenFrom(renumbered, idx - 1, { ...config, raceEndMins: toMins(config.raceEnd) }).map((s, i) => ({ ...s, id: i + 1 })));
+    const raceEndMins   = toMins(config.raceEnd);
+    const raceStartMins = toMins(config.raceStart);
+
+    // Keep logged stints before the removed one
+    const lastLoggedIdx = stints.slice(0, idx).reduce((acc, s, i) => s.actualEnd != null ? i : acc, -1);
+    const locked = lastLoggedIdx >= 0 ? stints.slice(0, lastLoggedIdx + 1) : [];
+
+    // Remaining unlogged stints, minus the removed one
+    const remaining = stints.filter((_, i) => i !== idx && i >= locked.length);
+    const newCount   = remaining.length;
+
+    if (newCount === 0) {
+      saveStints(locked.map((s, i) => ({ ...s, id: i + 1, isLast: i === locked.length - 1 })));
+      return;
     }
+
+    const planStart   = locked.length > 0 ? (locked[locked.length - 1].actualEnd + config.pitTimeMins) : raceStartMins;
+    const totalWindow = raceEndMins - planStart;
+    const totalPit    = (newCount - 1) * config.pitTimeMins;
+    const evenDur     = Math.max(5, Math.floor((totalWindow - totalPit) / newCount));
+
+    let cursor = planStart;
+    const rebuilt = remaining.map((s, i) => {
+      const isLast = i === newCount - 1;
+      const dur    = isLast ? Math.max(5, raceEndMins - cursor) : evenDur;
+      const result = { ...s, id: locked.length + i + 1, plannedStart: cursor, plannedEnd: cursor + dur, plannedDuration: dur, isLast };
+      cursor += dur + (isLast ? 0 : config.pitTimeMins);
+      return result;
+    });
+
+    saveStints([...locked.map(s => ({ ...s, isLast: false })), ...rebuilt]);
   }, [stints, config, saveStints]);
 
   const resetRace = async () => {
