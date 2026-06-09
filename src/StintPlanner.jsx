@@ -742,36 +742,49 @@ export default function StintPlanner() {
 
   const addStint = useCallback(() => {
     if (!stints.length) return;
-    const raceEndMins   = toMins(config.raceEnd);
-    const last          = stints[stints.length - 1];
-    const newStintDur   = config.stintLengthMins;
-    const spaceNeeded   = config.pitTimeMins + newStintDur;
-    const lastEnd       = last.actualEnd ?? last.plannedEnd;
-    const lastStart     = last.actualStart ?? last.plannedStart;
+    const raceEndMins = toMins(config.raceEnd);
+    const raceStartMins = toMins(config.raceStart);
 
-    let updatedLast = { ...last, isLast: false };
+    // Locked = already logged stints; keep them untouched
+    const lastLoggedIdx = stints.reduce((acc, s, i) => s.actualEnd != null ? i : acc, -1);
+    const locked = lastLoggedIdx >= 0 ? stints.slice(0, lastLoggedIdx + 1) : [];
 
-    // If adding would exceed race end, shorten the current last stint to make room
-    // Only shorten if there's actually room (new end must be after the stint's start)
-    if (lastEnd + spaceNeeded > raceEndMins) {
-      const newLastEnd = raceEndMins - spaceNeeded;
-      if (newLastEnd > lastStart) {
-        updatedLast = { ...updatedLast, plannedEnd: newLastEnd, plannedDuration: newLastEnd - lastStart };
-      }
-      // else: no room to fit cleanly — append past race end and let user adjust via PLAN
-    }
+    // Window to replan: from after the last logged pit stop (or race start)
+    const planStart = locked.length > 0
+      ? (locked[locked.length - 1].actualEnd + config.pitTimeMins)
+      : raceStartMins;
 
-    const newStart = (updatedLast.actualEnd ?? updatedLast.plannedEnd) + config.pitTimeMins;
-    const newStint = {
-      id: last.id + 1,
-      driver: config.drivers[stints.length % config.drivers.length],
-      plannedStart: newStart,
-      plannedEnd: newStart + newStintDur,
-      plannedDuration: newStintDur,
-      actualStart: null, actualEnd: null, fuelAdded: null, note: "",
-      fcyEvents: [], isLast: true,
-    };
-    saveStints([...stints.slice(0, -1).map(s => ({ ...s, isLast: false })), updatedLast, newStint]);
+    // Preserve existing unlogged drivers; append a new slot
+    const existingUnlogged = stints.slice(locked.length);
+    const newCount = existingUnlogged.length + 1;
+    const driverList = [
+      ...existingUnlogged.map(s => s.driver),
+      config.drivers[(locked.length + existingUnlogged.length) % config.drivers.length],
+    ];
+
+    // Distribute remaining race time evenly across newCount stints
+    const totalWindow = raceEndMins - planStart;
+    const totalPit    = (newCount - 1) * config.pitTimeMins;
+    const evenDur     = Math.max(5, Math.floor((totalWindow - totalPit) / newCount));
+
+    let cursor = planStart;
+    const rebuilt = driverList.map((driver, i) => {
+      const isLast = i === newCount - 1;
+      const dur    = isLast ? Math.max(5, raceEndMins - cursor) : evenDur;
+      const s = {
+        id: locked.length + i + 1,
+        driver,
+        plannedStart: cursor,
+        plannedEnd: cursor + dur,
+        plannedDuration: dur,
+        actualStart: null, actualEnd: null, fuelAdded: null, note: "",
+        fcyEvents: [], isLast,
+      };
+      cursor += dur + (isLast ? 0 : config.pitTimeMins);
+      return s;
+    });
+
+    saveStints([...locked.map(s => ({ ...s, isLast: false })), ...rebuilt]);
   }, [stints, config, saveStints]);
 
   const removeStint = useCallback((idx) => {
