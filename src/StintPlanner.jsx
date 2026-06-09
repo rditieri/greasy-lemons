@@ -575,7 +575,7 @@ function StintRow({ stint, idx, drivers, stints, saveStints, removeStint, config
           </div>
         )}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <Btn onClick={openPlanEdit} style={{ color: "#60a5fa", borderColor: "#60a5fa" }}>✎ PLAN</Btn>
+          <Btn onClick={openPlanEdit} style={{ color: "#60a5fa", borderColor: "#60a5fa" }}>✎ EDIT</Btn>
           <Btn onClick={openEdit}>
             {stint.actualEnd != null ? "✎ EDIT" : "LOG ACTUAL"}
           </Btn>
